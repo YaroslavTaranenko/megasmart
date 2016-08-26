@@ -1,0 +1,47 @@
+//
+   Created by yaroslav on 8/16/16.
+
+
+ul#main-menu
+    li.m-10(ng-repeat="cat in mainMenu.item")
+        category-item(category="cat")
+        span.iblock.h-50.m-5.lh-50.vt
+            i.fa.fa-times.pointer.red(aria-hidden="true" style="margin-left: 10px;" ng-click="ctg.removeCat(mainMenu.item, $index)" tip="Удалить")
+        ul.subitems(ng-repeat="sc in cat.subitems")
+            li
+                category-item(category="sc")
+                span.iblock.h-50.m-5.lh-50.vt
+                    i.fa.fa-times.pointer.red(aria-hidden="true" style="margin-left: 10px;" ng-click="ctg.removeCat(cat.subitems, $index)" tip="Удалить")
+            ul.ssubitems(ng-repeat="ssc in sc.subitems")
+                li
+                    category-item(category="ssc")
+                    span.iblock.h-50.m-5.lh-50.vt
+                        i.fa.fa-times.pointer.red(aria-hidden="true" style="margin-left: 10px;" ng-click="ctg.removeCat(sc.subitems, $index)" tip="Удалить")
+
+button.btn.pointer(ng-click="ctg.addCategory()") Добавить Категорию
+hr.m-t-10
+button.btn.pointer.m-t-20(ng-click="ctg.saveCat()") Сохранить
+button.btn.pointer.m-l-10(ng-click="ctg.saveCat()") Отменить
+
+
+.fon(ng-show="ctg.catForm.show")
+    div#category-form(style="border: 1px solid green;")
+        h3.m-t-10 {{ctg.catForm.title}}
+
+        .m-t-20.m-l-15
+            label.iblock.w-100.vt.h-20 Изображение
+            span.iblock.w-50.h-50
+                img(width="50" height="50" ngf-thumbnail="ctg.catForm.tmp.icon")
+            input.iblock.h-50.vt(type="file" ngf-select ng-model="ctg.catForm.tmp.icon" name="file"
+            accept="image/*" ngf-max-size="2MB" required
+            ngf-model-invalid="errorFile")
+        .m-t-10.m-l-15
+            label.iblock.w-100.vt.h-20 Заголовок
+            input.vm(type="text" ng-model="ctg.catForm.tmp.title")
+        .m-t-10.m-l-15
+            label.iblock.w-100.vt.h-20 Код
+            input.vm(type="text" ng-model="ctg.catForm.tmp.code")
+
+        span.iblock.h-50.m-r-20.m-t-30.right
+            button.fa.fa-check.pointer.green.m-l-15(aria-hidden="true" ng-click="ctg.catForm.ok()")
+            button.fa.fa-times.pointer.red.m-l-15(aria-hidden="true" ng-click="ctg.catForm.cancel()")

@@ -1,0 +1,63 @@
+//- 
+    To change this license header, choose License Headers in Project Properties.
+    To change this template file, choose Tools | Templates
+    and open the template in the editor.
+     
+
+ul#catalog
+    li(ng-repeat="p in products")
+        span.title {{p.title}}
+            
+hr
+button(ng-click="prod.add()") add
+
+.fon 
+    #product-form
+        ul.tabs
+            li(ng-click="prod.setTab('props')") Свойства
+            li(ng-click="prod.setTab('preview')") Обзор
+            li(ng-click="prod.setTab('full')") Подробно
+        .tab-content(ng-show="prod.checkTab('props')")
+            form-group
+                label.iblock.w-100 Заголовок
+                input(type="text" ng-model="form.tmp.title")
+            form-group
+                label.iblock.w-100 код
+                input(type="text" ng-model="form.tmp.code")
+            form-group
+                label.iblock.w-100 Тип
+                select(ng-model="tIndex")
+                    option(ng-repeat="c in categories" value="{{$index}}"){{c.title}}
+                    
+                
+                select(ng-model="tsIndex" ng-show="categories[tIndex].subitems.length > 0")
+                    option(ng-repeat="sc in categories[tIndex].subitems" value="{{$index}}") {{sc.title}}
+                    
+                select(ng-model="tssType" ng-show="categories[tIndex].subitems[tsIndex].subitems.length > 0")
+                    option(ng-repeat="ssc in categories[tIndex].subitems[tsIndex].subitems") {{ssc.title}}
+        .tab-content(ng-show="prod.checkTab('preview')")
+            form-group.h-260
+                label.iblock.w-100 Изображение    
+                .img-btn
+                    input(type="file" ngf-select ng-model="form.tmp.icon" name="file"
+                        accept="image/*" ngf-max-size="2MB" required
+                        ngf-model-invalid="errorFile")
+                .thumb
+                    img(ngf-thumbnail="form.tmp.icon")
+            form-group
+                label.iblock.w-p100 Описание
+                textarea.w-p90(ng-model="form.tmp.preview")
+                
+        .tab-content(ng-show="prod.checkTab('full')")
+            form-group
+                label.iblock.w-p100 Изображение
+                .img-btn
+                    input(type="file" ngf-select ng-model="form.tmp.mainPic" name="file"
+                        accept="image/*" ngf-max-size="2MB" required
+                        ngf-model-invalid="errorFile")
+                .thumb
+                    img(ngf-thumbnail="form.tmp.mainPic")
+                    
+        .footer
+            button Ok
+            button Cancel

@@ -1,0 +1,23 @@
+
+span.iblock.w-50.h-50    
+    img(ng-if="!cat.ticon" ng-src="/images/menu/{{cat.icon}}" ng-show="!editCat" tip="icon")
+    img(ng-if="cat.ticon" ngf-thumbnail="cat.ticon" ng-show="!editCat" tip="icon")
+span.iblock.h-50.vt(ng-show="editCat")
+    span.iblock.w-50.h-50
+        img(width="50" height="50" ngf-thumbnail="tmp.icon")
+    input.iblock.h-50.vt(type="file" ngf-select ng-model="tmp.icon" name="file"
+        accept="image/*" ngf-max-size="2MB" required
+        ngf-model-invalid="errorFile")
+span.iblock.h-50.m-5.vm(ng-show="!editCat") {{cat.title}}
+span.iblock.h-50.m-5.vm(ng-show="!editCat") {{cat.code}}
+span.iblock.h-50.m-5.lh-50.vt(ng-show="editCat")
+    input.vm(type="text" ng-model="tmp.title")
+span.iblock.h-50.m-5.lh-50.vt(ng-show="editCat")
+    input.vm(type="text" ng-model="tmp.code")
+span.iblock.h-50.m-5.lh-50.vt(ng-hide="editCat")
+    i.fa.fa-pencil-square-o.pointer.blue(aria-hidden="true" ng-click="editCat = !editCat; tmp.title = cat.title; tmp.code = cat.code" tip="Редактировать")
+    
+    i.fa.fa-plus.pointer.green(aria-hidden="true" style="margin-left: 10px;" ng-click="ci.addSubCat(cat)" tip="Добавить подкатегорию")
+span.iblock.h-50.m-5.lh-50.vt(ng-show="editCat")
+    i.fa.fa-check.pointer.green(aria-hidden="true" ng-click="ci.accept(tmp, cat); editCat = false" tip="Принять")
+    i.fa.fa-times.pointer.red(aria-hidden="true" style="margin-left: 10px;" ng-click="editCat = !editCat" tip="Отменить")

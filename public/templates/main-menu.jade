@@ -1,0 +1,30 @@
+//
+   Created by yaroslav on 8/16/16.
+    # {{cMenu}}
+    # {{ssubPos}} 
+.menu-wrapper
+    div#main-menu
+        .subprev
+            .prev.left.fa.fa-angle-left(ng-click="mm.prev()"  ng-class="{'mm-disabled': prevEnd}")
+        ul(ng-style="menuLength" )
+            li.vt(ng-repeat="mi in mainMenu.item" ng-click="mm.over(mi, $event); mm.sclear()")
+                a(href)
+                    img.left(ng-src="/images/menu/{{mi.icon}}")  
+                    .title() {{mi.title}}
+                    i.fa.fa-angle-down(ng-show="mi.subitems.length > 0")
+        .subnext
+            .next.right.fa.fa-angle-right(ng-click="mm.next()" ng-class="{'mm-disabled': nextEnd}")
+    div#subitems(ng-style="subPos")
+        ul
+            li(ng-repeat="si in cMenu.subitems" ng-click="mm.sover(si, $event)")
+                a(href)
+                    img.h-50.w-50.left(ng-src="/images/menu/{{si.icon}}")  
+                    .title() {{si.title}}
+                i.fa.fa-angle-right(ng-show="si.subitems.length > 0")
+
+        div#subitems(ng-style="ssubPos")
+            ul
+                li(ng-repeat="ssi in csMenu.subitems")
+                    a(href)
+                        img.h-50.w-50.left(ng-src="/images/menu/{{ssi.icon}}")  
+                        .title() {{ssi.title}}                

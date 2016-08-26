@@ -1,0 +1,26 @@
+doctype html
+html(ng-app="bitkom")
+    head
+        title= title
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        link(rel='stylesheet', href='/stylesheets/font-awesome.min.css')
+        link(rel='stylesheet', href='/stylesheets/main.css')
+        script(src='//localhost:35730/livereload.js' type='text/javascript')
+        script(src="/javascripts/angular.min.js")
+        script(src="/javascripts/angular-animate.js")
+
+    body(ng-controller="mainCtrl")
+        top-panel
+        header            
+            .container
+                my-header.w-p100.iblock
+                main-menu
+        .container
+            my-slider(slids="slides")
+        div(scroll ng-class='{min:boolChangeClass}')
+        # path{{path}}
+        content-wrapper
+            block content
+        footer
+
+    script(src="/javascripts/app.min.js")

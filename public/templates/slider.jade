@@ -1,0 +1,15 @@
+//- 
+    To change this license header, choose License Headers in Project Properties.
+    To change this template file, choose Tools | Templates
+    and open the template in the editor.
+     
+    # {{slids}}
+#main-slider
+    ul
+        li.animation-fade(ng-repeat="slide in slids" ng-show="slide.show")
+            img.slide-img(ng-src="/images/menu/{{slide.mainPic}}") 
+            .slide-desc
+                span.slide-title {{slide.title}}
+                span.slide-preview {{slide.desc}}
+    button(ng-click="next()") Next
+    
