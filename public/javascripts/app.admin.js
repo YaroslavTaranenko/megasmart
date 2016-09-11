@@ -17,8 +17,8 @@
         };
     });
 
-    app.controller('TestCtlr', function(){
-        //alert('test');
+    app.controller('mainCtrl', function($scope){
+        $scope.lang = 'ru';
     });
 
 })();

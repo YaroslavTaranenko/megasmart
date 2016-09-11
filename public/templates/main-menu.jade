@@ -4,16 +4,48 @@
     # {{ssubPos}} 
 .menu-wrapper
     div#main-menu
-        .subprev
-            .prev.left.fa.fa-angle-left(ng-click="mm.prev()"  ng-class="{'mm-disabled': prevEnd}")
-        ul(ng-style="menuLength" )
-            li.vt(ng-repeat="mi in mainMenu.item" ng-click="mm.over(mi, $event); mm.sclear()")
-                a(href)
-                    img.left(ng-src="/images/menu/{{mi.icon}}")  
-                    .title() {{mi.title}}
-                    i.fa.fa-angle-down(ng-show="mi.subitems.length > 0")
-        .subnext
-            .next.right.fa.fa-angle-right(ng-click="mm.next()" ng-class="{'mm-disabled': nextEnd}")
+                   
+        ul
+            li.vt
+                a(href="{{mainMenu[0].href}}")
+                    img(ng-src="/images/{{mainMenu[0].img}}" ng-show="mainMenu[0].img.length > 0")  
+                    .title(ng-show="{{mainMenu[0].title[lang].length > 0") {{mainMenu[0].title[lang]}}
+            li.vt
+                a(href="{{mainMenu[1].href}}")
+                    img(ng-src="/images/{{mainMenu[1].img}}" ng-show="mi.img.length > 0")  
+                    .title(ng-show="{{mainMenu[1].title[lang].length > 0") {{mainMenu[1].title[lang]}}
+                    
+            li.logo.vt
+                a(href="{{mainMenu[2].href}}")
+                    img(ng-src="/images/{{mainMenu[2].img}}" ng-show="mainMenu[2].img.length > 0")  
+                    .title(ng-show="{{mainMenu[2].title[lang].length > 0") {{mainMenu[2].title[lang]}}
+                    i#logo-arrow.fa.fa-angle-down
+                ul.subitems.animation-fade
+                    li(ng-repeat="si in mainMenu[2].subitems")
+                        
+                        a(href="{{si.href}}")
+                            i.fa.fa-circle.mm-active
+                            .title {{si.title[lang]}}
+                            i.fa.fa-angle-right(ng-show="si.subitems.length > 0")
+                        ul.sub-subitems
+                            li(ng-repeat="ssi in si.subitems")
+                                a(href="{{ssi.href}}")
+                                    i.fa.fa-circle.mm-active
+                                    .title {{ssi.title[lang]}}
+                                    i.fa.fa-angle-right(ng-show="ssi.subitems.length > 0")
+            li.vt
+                a(href="{{mainMenu[3].href}}")
+                    img(ng-src="/images/{{mainMenu[3].img}}" ng-show="mainMenu[3].img.length > 0")  
+                    .title(ng-show="{{mainMenu[3].title[lang].length > 0") {{mainMenu[3].title[lang]}}
+            li.vt
+                a(href="{{mainMenu[4].href}}")
+                    img(ng-src="/images/{{mainMenu[4].img}}" ng-show="mainMenu[4].img.length > 0")  
+                    .title(ng-show="{{mainMenu[4].title[lang].length > 0") {{mainMenu[4].title[lang]}}
+            li.vt
+                a(href="{{mainMenu[5].href}}")
+                    img(ng-src="/images/{{mainMenu[5].img}}" ng-show="mainMenu[5].img.length > 0")  
+                    .title(ng-show="{{mainMenu[5].title[lang].length > 0") {{mainMenu[5].title[lang]}}
+            //.next.right.fa.fa-angle-right(ng-click="mm.next()" ng-class="{'mm-disabled': nextEnd}")
     div#subitems(ng-style="subPos")
         ul
             li(ng-repeat="si in cMenu.subitems" ng-click="mm.sover(si, $event)")

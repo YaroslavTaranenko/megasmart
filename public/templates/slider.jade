@@ -7,9 +7,8 @@
 #main-slider
     ul
         li.animation-fade(ng-repeat="slide in slids" ng-show="slide.show")
-            img.slide-img(ng-src="/images/menu/{{slide.mainPic}}") 
+            img.slide-img(ng-src="/images/slider/{{slide.mainPic}}") 
             .slide-desc
-                span.slide-title {{slide.title}}
-                span.slide-preview {{slide.desc}}
-    button(ng-click="next()") Next
+                
+    
     

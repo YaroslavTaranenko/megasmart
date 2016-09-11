@@ -2,7 +2,7 @@
  * Created by yaroslav on 8/10/16.
  */
 (function() {
-    var app = angular.module('bitkom', ['templates', 'ngAnimate', "panelTop", 'mainMenu', "myHeader", 'mySlider']);
+    var app = angular.module('megasmart', ['templates', 'ngAnimate', 'mainMenu', 'mySlider']);
 
     app.directive("scroll", function ($window) {
         return function (scope, element, attrs) {
@@ -17,11 +17,11 @@
         };
     });
     app.controller('mainCtrl', function($scope){
+        $scope.lang = 'ru';
         $scope.slides = [
-            {title: 'slide 1', mainPic:'10190337.jpg', desc:'Lorem Ipsum - это текст-"рыба", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной "рыбой" для текстов на латинице с начала XVI века.'}, 
-            {title: 'slide 2', mainPic:'567.jpg.png', desc:'В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов.'}, 
-            {title: 'slide 3', mainPic:'Untitled.png', desc:'Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн.'}, 
-            {title: 'slide 5', mainPic:'batman.jpg', desc:'Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum.'}
+            {title: 'slide 1', mainPic:'slid1.jpg', desc:''}, 
+            {title: 'slide 2', mainPic:'slid2.jpg', desc:''}, 
+            {title: 'slide 3', mainPic:'slid3.jpg', desc:''} 
         ];
     });
 
@@ -84,89 +84,45 @@
             return{
                 restrict: "E",
                 templateUrl: "templates/main-menu.jade",
+                scope:{
+                    lang: '='
+                },
                 controller: function($scope, $http){
                     //alert('top-panel');
-                    $http.post('/admin/view/interface', {name: 'main-menu'})
-                        .then(function(resp){
-                            $scope.mainMenu = resp.data.interface[0];
-                            $scope.menuLength = {"width": ($scope.mainMenu.item.length * 200)+"px", "margin-left": "10px"};
-                            $scope.prevEnd = true;
-                            if($scope.mainMenu.item.length <= 5)$scope.nextEnd = true;
-                        }, function(err){alert(err.data);});
-                    this.next = function(){
-                        $scope.cMenu = null;
-                        $scope.csMenu = null;
-                        var ml = parseInt($scope.menuLength["margin-left"]);
-                        
-                        if(ml <= (($scope.mainMenu.item.length - 5)*197 - 10)*-1){
-                            $scope.nextEnd = true;
-                            return;
-                        }
-                        $scope.menuLength["margin-left"] = (ml - 197) + "px";
-                        ml = ml - 197;
-                        if(ml <= (($scope.mainMenu.item.length - 5)*197 - 10)*-1){
-                            //alert(ml);
-                            $scope.nextEnd = true;                            
-                        }else{
-                            $scope.nextEnd = false;
-                        }
-                        if(ml >= 10){
-                            //alert(ml);
-                            $scope.prevEnd = true;                            
-                        }else{
-                            $scope.prevEnd = false;
-                        }
-                    };
-                    this.prev = function(){
-                        $scope.cMenu = null;
-                        $scope.scMenu = null;
-                        var ml = parseInt($scope.menuLength["margin-left"]);                        
-                        if(ml >= 10){
-                            $scope.prevEnd = true;
-                            return;
-                        }
-                        $scope.menuLength["margin-left"] = (ml + 197) + "px";
-                        ml = ml + 197;
-                        if(ml >= 10){
-                            //alert(ml);
-                            $scope.prevEnd = true;                            
-                        }else{
-                            $scope.prevEnd = false;
-                        }
-                        if(ml <= (($scope.mainMenu.item.length - 5)*197 - 10)*-1){
-                            //alert(ml);
-                            $scope.nextEnd = true;                            
-                        }else{
-                            $scope.nextEnd = false;
-                        }
-                    };
-                    this.over = function(mi, $event){
-                        //alert(mi.title);
-                        this.pos($event);
-                        if($scope.cMenu == mi){
-                            $scope.cMenu = null;
-                        }else{
-                            $scope.cMenu = mi;
-                        }
-                    };
-                    this.sover = function(smi, $event){
-                        if($scope.csMenu == smi){
-                            $scope.csMenu = null;
-                        }else{
-                            $scope.csMenu = smi;
-                        }
-                        $scope.ssubPos = {"left": (angular.element($event.target).prop('offsetLeft') + 250) + 'px', "top": (angular.element($event.target).prop('offsetTop')) + 'px'};
-                    };
-                    this.sclear = function(){
-                        $scope.csMenu = null;
-                    };
-                    this.leave = function(){
-                        $scope.cMenu = null;
-                    };
-                    this.pos = function($event){
-                        //alert(angular.element($event.target).prop('offsetLeft'));
-                        $scope.subPos = {"left": angular.element($event.target).prop('offsetLeft') + 'px', "top": (angular.element($event.target).prop('offsetTop') + 52) + 'px'};
-                    }
+//                    $http.post('/admin/view/interface', {name: 'main-menu'})
+//                        .then(function(resp){
+//                            $scope.mainMenu = resp.data.interface[0];
+//                            
+//                        }, function(err){alert(err.data);});
+                    $scope.mainMenu = [
+                        {title: {ru: '', en: ''},img: 'logo.png',href: '/'},
+                        {title: {ru: 'Главная', en: 'Home'},img: '',href: '/'},
+                        {title: {ru: '', en: ''},img: 'smart.png',href: '/catalog',
+                            subitems: [
+                                {title: {ru: 'Глянцевые модели МДФ', en: 'panels'}, href:'', img: '',
+                                    subitems: [
+                                        {title:{ru:'Серия SILK', en:''}, href:''},
+                                        {title:{ru:'Серия EMBO волны', en:''}, href:''},
+                                        {title:{ru:'Серия FLOWER', en:''}, href:''},
+                                        {title:{ru:'Серия ТЕКСТУРЫ', en:''}, href:''},
+                                        {title:{ru:'Серия ОДНОТОННЫЕ и ПЕРЛАМУТРОВЫЕ', en:''}, href:''}
+                                    ]
+                                },
+                                {title: {ru: 'Кромка и профиль', en: 'panels'}, href: '', img: '', 
+                                    subitems:[
+                                        {title:{ru:'Кромка ПВХ', en:''}, href:''},
+                                        {title:{ru:'Кромка ABS', en:''}, href:''},
+                                        {title:{ru:'Профиль аллюминиевый', en:''}, href:''},
+                                        {title:{ru:'Подборка кромки', en:''}, href:''}
+                                    ]
+                                },
+                                {title: {ru: 'Новые', en: 'panels', href: '', img: ''}}
+                            ]                        
+                        },
+                        {title: {ru: 'О компании', en: 'About'},img: '',href: '/about'}, 
+                        {title: {ru: 'Готовые решения', en: 'Gallery'},img: '',href: '/gallery'}, 
+                        {title: {ru: 'Контакты', en: 'Contacts'},img: '',href: '/contacts'}
+                    ];
                 },
                 controllerAs: "mm"
             };
@@ -293,12 +249,12 @@ angular.module("templates/main-menu.jade", []).run(["$templateCache", function($
   $templateCache.put("templates/main-menu.jade",
     "<!--Created by yaroslav on 8/16/16.\n" +
     " # {{cMenu}}\n" +
-    " # {{ssubPos}} --><div class=\"menu-wrapper\"><div id=\"main-menu\"><div class=\"subprev\"><div ng-click=\"mm.prev()\" ng-class=\"{'mm-disabled': prevEnd}\" class=\"prev left fa fa-angle-left\"></div></div><ul ng-style=\"menuLength\"><li ng-repeat=\"mi in mainMenu.item\" ng-click=\"mm.over(mi, $event); mm.sclear()\" class=\"vt\"><a href><img ng-src=\"/images/menu/{{mi.icon}}\" class=\"left\"><div class=\"title\">{{mi.title}}</div><i ng-show=\"mi.subitems.length &gt; 0\" class=\"fa fa-angle-down\"></i></a></li></ul><div class=\"subnext\"><div ng-click=\"mm.next()\" ng-class=\"{'mm-disabled': nextEnd}\" class=\"next right fa fa-angle-right\"></div></div></div><div id=\"subitems\" ng-style=\"subPos\"><ul><li ng-repeat=\"si in cMenu.subitems\" ng-click=\"mm.sover(si, $event)\"><a href><img ng-src=\"/images/menu/{{si.icon}}\" class=\"h-50 w-50 left\"><div class=\"title\">{{si.title}}</div></a><i ng-show=\"si.subitems.length &gt; 0\" class=\"fa fa-angle-right\"></i></li></ul><div id=\"subitems\" ng-style=\"ssubPos\"><ul><li ng-repeat=\"ssi in csMenu.subitems\"><a href><img ng-src=\"/images/menu/{{ssi.icon}}\" class=\"h-50 w-50 left\"><div class=\"title\">{{ssi.title}}                </div></a></li></ul></div></div></div>");
+    " # {{ssubPos}} --><div class=\"menu-wrapper\"><div id=\"main-menu\"><ul><li class=\"vt\"><a href=\"{{mainMenu[0].href}}\"><img ng-src=\"/images/{{mainMenu[0].img}}\" ng-show=\"mainMenu[0].img.length &gt; 0\"><div ng-show=\"{{mainMenu[0].title[lang].length &gt; 0\" class=\"title\">{{mainMenu[0].title[lang]}}</div></a></li><li class=\"vt\"><a href=\"{{mainMenu[1].href}}\"><img ng-src=\"/images/{{mainMenu[1].img}}\" ng-show=\"mi.img.length &gt; 0\"><div ng-show=\"{{mainMenu[1].title[lang].length &gt; 0\" class=\"title\">{{mainMenu[1].title[lang]}}</div></a></li><li class=\"logo vt\"><a href=\"{{mainMenu[2].href}}\"><img ng-src=\"/images/{{mainMenu[2].img}}\" ng-show=\"mainMenu[2].img.length &gt; 0\"><div ng-show=\"{{mainMenu[2].title[lang].length &gt; 0\" class=\"title\">{{mainMenu[2].title[lang]}}</div><i id=\"logo-arrow\" class=\"fa fa-angle-down\"></i></a><ul class=\"subitems animation-fade\"><li ng-repeat=\"si in mainMenu[2].subitems\"><a href=\"{{si.href}}\"><i class=\"fa fa-circle mm-active\"></i><div class=\"title\">{{si.title[lang]}}</div><i ng-show=\"si.subitems.length &gt; 0\" class=\"fa fa-angle-right\"></i></a><ul class=\"sub-subitems\"><li ng-repeat=\"ssi in si.subitems\"><a href=\"{{ssi.href}}\"><i class=\"fa fa-circle mm-active\"></i><div class=\"title\">{{ssi.title[lang]}}</div><i ng-show=\"ssi.subitems.length &gt; 0\" class=\"fa fa-angle-right\"></i></a></li></ul></li></ul></li><li class=\"vt\"><a href=\"{{mainMenu[3].href}}\"><img ng-src=\"/images/{{mainMenu[3].img}}\" ng-show=\"mainMenu[3].img.length &gt; 0\"><div ng-show=\"{{mainMenu[3].title[lang].length &gt; 0\" class=\"title\">{{mainMenu[3].title[lang]}}</div></a></li><li class=\"vt\"><a href=\"{{mainMenu[4].href}}\"><img ng-src=\"/images/{{mainMenu[4].img}}\" ng-show=\"mainMenu[4].img.length &gt; 0\"><div ng-show=\"{{mainMenu[4].title[lang].length &gt; 0\" class=\"title\">{{mainMenu[4].title[lang]}}</div></a></li><li class=\"vt\"><a href=\"{{mainMenu[5].href}}\"><img ng-src=\"/images/{{mainMenu[5].img}}\" ng-show=\"mainMenu[5].img.length &gt; 0\"><div ng-show=\"{{mainMenu[5].title[lang].length &gt; 0\" class=\"title\">{{mainMenu[5].title[lang]}}</div></a></li><!--.next.right.fa.fa-angle-right(ng-click=\"mm.next()\" ng-class=\"{'mm-disabled': nextEnd}\")--></ul></div><div id=\"subitems\" ng-style=\"subPos\"><ul><li ng-repeat=\"si in cMenu.subitems\" ng-click=\"mm.sover(si, $event)\"><a href><img ng-src=\"/images/menu/{{si.icon}}\" class=\"h-50 w-50 left\"><div class=\"title\">{{si.title}}</div></a><i ng-show=\"si.subitems.length &gt; 0\" class=\"fa fa-angle-right\"></i></li></ul><div id=\"subitems\" ng-style=\"ssubPos\"><ul><li ng-repeat=\"ssi in csMenu.subitems\"><a href><img ng-src=\"/images/menu/{{ssi.icon}}\" class=\"h-50 w-50 left\"><div class=\"title\">{{ssi.title}}                </div></a></li></ul></div></div></div>");
 }]);
 
 angular.module("templates/slider.jade", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("templates/slider.jade",
-    "<div id=\"main-slider\"><ul><li ng-repeat=\"slide in slids\" ng-show=\"slide.show\" class=\"animation-fade\"><img ng-src=\"/images/menu/{{slide.mainPic}}\" class=\"slide-img\"><div class=\"slide-desc\"><span class=\"slide-title\">{{slide.title}}</span><span class=\"slide-preview\">{{slide.desc}}</span></div></li></ul><button ng-click=\"next()\">Next</button></div>");
+    "<div id=\"main-slider\"><ul><li ng-repeat=\"slide in slids\" ng-show=\"slide.show\" class=\"animation-fade\"><img ng-src=\"/images/slider/{{slide.mainPic}}\" class=\"slide-img\"><div class=\"slide-desc\"></div></li></ul></div>");
 }]);
 
 angular.module("templates/test.jade", []).run(["$templateCache", function($templateCache) {

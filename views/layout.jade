@@ -1,5 +1,5 @@
 doctype html
-html(ng-app="bitkom")
+html(ng-app="megasmart")
     head
         title= title
         link(rel='stylesheet', href='/stylesheets/style.css')
@@ -10,17 +10,16 @@ html(ng-app="bitkom")
         script(src="/javascripts/angular-animate.js")
 
     body(ng-controller="mainCtrl")
-        top-panel
-        header            
-            .container
-                my-header.w-p100.iblock
-                main-menu
         .container
-            my-slider(slids="slides")
-        div(scroll ng-class='{min:boolChangeClass}')
-        # path{{path}}
-        content-wrapper
-            block content
-        footer
+            main-menu(lang="lang")
+                  
+            div(scroll ng-class='{min:boolChangeClass}')
+         
+            content-wrapper
+                block content
+            footer
+                .footer-border
+                .footer-wrapper
+                    .footer-content
 
     script(src="/javascripts/app.min.js")

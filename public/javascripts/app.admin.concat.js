@@ -17,8 +17,8 @@
         };
     });
 
-    app.controller('TestCtlr', function(){
-        //alert('test');
+    app.controller('mainCtrl', function($scope){
+        $scope.lang = 'ru';
     });
 
 })();;/**
@@ -35,34 +35,58 @@
                 
 //                $http.post('/admin/view/categories', {})
 //                    .then(function(resp){$scope.categories = resp.data.categories}, function(err){alert(err.data);});
-                $http.post('/admin/view/interface', {name: 'main-menu'})
-                    .then(function(resp){$scope.mainMenu = resp.data.interface[0]}, function(err){alert(err.data);});
-                this.catForm = {
+                $http.post('/admin/view/categories', {query: {parent: null}})
+                    .then(function(resp){$scope.categories = resp.data.categories}, function(err){alert(err.data);});
+                this.form = {
                     show: false,
                     cancel: function cancel(){
                         this.show = false;
                     }
                 };
-                this.addCategory = function(){
-                    this.catForm.title = "Добавить категорию";
-                    this.catForm.tmp = {};
-                    this.catForm.show = true;
-                    this.catForm.upload = this.uploadFile;
-                    this.catForm.ok = this.pushCat;
+                this.addCategory = function(parent){
+                    this.form.title = "Добавить категорию";
+                    this.form.tmp = {img: null, parent: parent};
+                    this.form.show = true;
+                    this.form.upload = this.uploadFile;
+                    this.form.ok = this.insertCat;
 
                 };
-                this.pushCat = function(){                    
-                    if(this.tmp.icon){
-                            this.upload(this.tmp.icon);
-                            this.tmp.ticon = this.tmp.icon;
-                            this.tmp.icon = this.tmp.ticon.name;
-                        }
-                    $scope.mainMenu.item.push(this.tmp);
+                this.editCategory = function(cat){
+                    this.form.title = "Редактировать категорию";
+                    this.form.tmp = cat;
+                    this.form.tmp.timg = null;
+                    this.form.show = true;
+                    this.form.upload = this.uploadFile;
+                    this.form.ok = this.insertCat;
+
+                };
+                this.insertCat = function(){                    
+                    if(this.tmp.img.name){
+                        this.upload(this.tmp.img);                            
+                        
+                        this.tmp.img = this.tmp.img.name;
+                    }
+                    $http.post('/admin/save/categories', {item: this.tmp, fields:['img', 'title', 'href', 'code']})
+                        .then(function(resp){
+                            $http.post('/admin/view/categories', {query: {parent: this.tmp.parent}})
+                                .then(function(resp){
+                                    alert(this.tmp.parent);
+                                    if(this.tmp.parent){
+                                        $scope.subcats = resp.data.categories;
+                                    }else{
+                                        $scope.categories = resp.data.categories;
+                                    }
+                                }, function(err){alert(err.data);});
+                        }, function(err){alert(err.data);});
                     this.show = false;
                 };
-                
+                this.getSubcats = function(id){
+                    $scope.tmpCat = id;
+                    $http.post('/admin/view/categories', {query: {parent: id}})
+                        .then(function(resp){$scope.subcats = resp.data.categories; }, function(err){alert(err.data);});
+                };
                 this.uploadFile = function(file, next){
-                    //alert('uploading');
+                    
                     Upload.upload({
                         url:'/admin/upload',
                         data: {'file': file}
@@ -85,41 +109,26 @@
                     }
                 };
                 this.saveCat = function(){
-                    remTicon($scope.mainMenu.item);
-                    $http.post('/admin/save/interface', {item: $scope.mainMenu, fields: ['item']})
-                        .then(function(response){                            
-                            $http.post('/admin/view/interface', {name: 'main-menu'})
-                                .then(function(resp){$scope.mainMenu = resp.data.interface[0]}, function(err){alert(err.data);});
-                        }, function(err){alert(err.data);});
-                    this.show = false;
+                    
                 };
                 
                 //function changeIcon(cat, tmp){cat.icon = tmp.icon.name;}
                 
                 this.addSubCat = function(cat){
-
-                    this.catForm.title = "Добавить подкатегорию";
+                    alert('subcat');
+                    this.form.title = "Добавить подкатегорию";
                     //this.catForm.cat = cat;
-                    this.catForm.tmp = {};
-                    this.catForm.show = true;
-                    this.catForm.upload = this.uploadFile;
-                    this.catForm.ok = function(){
-                        //alert(cat.title);
-                        if(!cat.subitems){
-                            cat.subitems = [];
-                        }
-                        
-                        if(this.tmp.icon){
-                            this.upload(this.tmp.icon);
-                            this.tmp.ticon = this.tmp.icon;
-                            this.tmp.icon = this.tmp.ticon.name;
-                        }
-                        cat.subitems.push(this.tmp);
-                        this.show = false;
-                    };
+                    this.form.tmp = {img: null, parent: cat};
+                    this.form.show = true;
+                    this.form.upload = this.uploadFile;
+                    this.form.ok = this.insertCat;
                 };
-                this.removeCat = function(arr, idx){
-                    arr.splice(idx, 1);
+                this.removeCat = function(id){
+                    $http.post('/admin/remove/categories', {id: id})
+                            .then(function(resp){
+                                $http.post('/admin/view/categories', {query: {parent: null}})
+                                    .then(function(resp){$scope.categories = resp.data.categories;}, function(err){alert(err.data);});
+                            }, function(err){alert(err.data);});
                 };
                 this.test = function(){
                     alert('test');
@@ -129,56 +138,7 @@
             controllerAs: "ctg"
         };
     });
-    app.directive('categoryItem', function(){
-        return{
-            require: '^^categories',
-            restrict: "E",
-            scope: {
-                cat: '=category',
-                idx: '=index'
-            },
-            templateUrl: "templates/adminka/category-item.jade",
-            controller: ['$scope', 'Upload', '$http', function($scope, Upload, $http){
-                //this.testc = function(){};
-                this.pctrl = undefined;
-                this.addSubCat = function(cat){
-                    pctrl.addSubCat(cat);
-                };
-                this.accept = function(tmp, cat){
-                    
-                    if(tmp.icon){
-                        this.uploadFile(tmp.icon);
-                        cat.ticon = tmp.icon;
-                        cat.icon = tmp.icon.name;
-                        tmp.icon = null;
-                    }
-                    cat.title = tmp.title;
-                    cat.code = tmp.code;
-                    ///tmp = null;
-                };
-                this.uploadFile = function(file, next){
-                    //alert('uploading');
-                    Upload.upload({
-                        url:'/admin/upload',
-                        data: {'file': file}
-                    }).then(function (response) {
-                        next();                        
-                    }, function (response) {
-                        if (response.status > 0)
-                            $scope.errorMsg = response.status + ': ' + response.data;
-                    }, function (evt) {
-                        // Math.min is to fix IE which reports 200% sometimes
-                        file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-                    });
-                };
-            }],
-            controllerAs: 'ci',
-            link: function(scope,element,attr, parentCtrl){
-                this.pctrl = parentCtrl;
-            }
-            
-        };
-    });
+    
 
 })();;/* 
  * To change this license header, choose License Headers in Project Properties.
@@ -258,7 +218,7 @@ angular.module("templates/adminka/categories.jade", []).run(["$templateCache", f
   $templateCache.put("templates/adminka/categories.jade",
     "<!--Created by yaroslav on 8/16/16.\n" +
     "\n" +
-    "--><ul id=\"main-menu\"><li ng-repeat=\"cat in mainMenu.item\" class=\"m-10\"><category-item category=\"cat\"></category-item><span class=\"iblock h-50 m-5 lh-50 vt\"><i aria-hidden=\"true\" style=\"margin-left: 10px;\" ng-click=\"ctg.removeCat(mainMenu.item, $index)\" tip=\"Удалить\" class=\"fa fa-times pointer red\"></i></span><ul ng-repeat=\"sc in cat.subitems\" class=\"subitems\"><li><category-item category=\"sc\"></category-item><span class=\"iblock h-50 m-5 lh-50 vt\"><i aria-hidden=\"true\" style=\"margin-left: 10px;\" ng-click=\"ctg.removeCat(cat.subitems, $index)\" tip=\"Удалить\" class=\"fa fa-times pointer red\"></i></span></li><ul ng-repeat=\"ssc in sc.subitems\" class=\"ssubitems\"><li><category-item category=\"ssc\"></category-item><span class=\"iblock h-50 m-5 lh-50 vt\"><i aria-hidden=\"true\" style=\"margin-left: 10px;\" ng-click=\"ctg.removeCat(sc.subitems, $index)\" tip=\"Удалить\" class=\"fa fa-times pointer red\"></i></span></li></ul></ul></li></ul><button ng-click=\"ctg.addCategory()\" class=\"btn pointer\">Добавить Категорию</button><hr class=\"m-t-10\"><button ng-click=\"ctg.saveCat()\" class=\"btn pointer m-t-20\">Сохранить</button><button ng-click=\"ctg.saveCat()\" class=\"btn pointer m-l-10\">Отменить</button><div ng-show=\"ctg.catForm.show\" class=\"fon\"><div id=\"category-form\" style=\"border: 1px solid green;\"><h3 class=\"m-t-10\">{{ctg.catForm.title}}</h3><div class=\"m-t-20 m-l-15\"><label class=\"iblock w-100 vt h-20\">Изображение</label><span class=\"iblock w-50 h-50\"><img width=\"50\" height=\"50\" ngf-thumbnail=\"ctg.catForm.tmp.icon\"></span><input type=\"file\" ngf-select ng-model=\"ctg.catForm.tmp.icon\" name=\"file\" accept=\"image/*\" ngf-max-size=\"2MB\" required ngf-model-invalid=\"errorFile\" class=\"iblock h-50 vt\"></div><div class=\"m-t-10 m-l-15\"><label class=\"iblock w-100 vt h-20\">Заголовок</label><input type=\"text\" ng-model=\"ctg.catForm.tmp.title\" class=\"vm\"></div><div class=\"m-t-10 m-l-15\"><label class=\"iblock w-100 vt h-20\">Код</label><input type=\"text\" ng-model=\"ctg.catForm.tmp.code\" class=\"vm\"></div><span class=\"iblock h-50 m-r-20 m-t-30 right\"><button aria-hidden=\"true\" ng-click=\"ctg.catForm.ok()\" class=\"fa fa-check pointer green m-l-15\"></button><button aria-hidden=\"true\" ng-click=\"ctg.catForm.cancel()\" class=\"fa fa-times pointer red m-l-15\"></button></span></div></div>");
+    "--><ul id=\"main-menu\"><li ng-repeat=\"cat in categories\" class=\"m-10\"><span class=\"iblock w-50 h-50\">   <img ng-if=\"!cat.img.name\" ng-src=\"/images/catalog/{{cat.img}}\" tip=\"icon\"><img ng-if=\"cat.img.name\" ngf-thumbnail=\"cat.img\" tip=\"icon\"></span><span class=\"iblock h-50 m-5 vm\">{{cat.title[lang]}}</span><span class=\"iblock h-50 m-5 vm\">{{cat.code}}</span><span class=\"iblock h-50 m-5 vm\">{{cat.href}}</span><span class=\"iblock h-50 m-5 lh-50 vt\"><i aria-hidden=\"true\" ng-click=\"ctg.editCategory(cat)\" tip=\"Редактировать\" class=\"fa fa-pencil-square-o pointer blue\"></i><i aria-hidden=\"true\" style=\"margin-left: 10px;\" ng-click=\"ctg.getSubcats(cat._id)\" tip=\"Показать подкатегории\" class=\"fa fa-plus pointer green\"></i><i aria-hidden=\"true\" style=\"margin-left: 10px;\" ng-click=\"ctg.removeCat(cat._id)\" tip=\"Удалить\" class=\"fa fa-times pointer red\"> </i></span></li></ul><button ng-click=\"ctg.addCategory()\" class=\"btn pointer\">Добавить Категорию</button><hr class=\"m-t-10\"># {{tmpCat}}<ul id=\"main-subs\"><li ng-repeat=\"cat in subcats\" class=\"m-10\"><span class=\"iblock w-50 h-50\">   <img ng-if=\"!cat.img.name\" ng-src=\"/images/catalog/{{cat.img}}\" tip=\"icon\"><img ng-if=\"cat.img.name\" ngf-thumbnail=\"cat.img\" tip=\"icon\"></span><span class=\"iblock h-50 m-5 vm\">{{cat.title[lang]}}</span><span class=\"iblock h-50 m-5 vm\">{{cat.code}}</span><span class=\"iblock h-50 m-5 vm\">{{cat.href}}</span><span class=\"iblock h-50 m-5 lh-50 vt\"><i aria-hidden=\"true\" ng-click=\"ctg.editCategory(cat)\" tip=\"Редактировать\" class=\"fa fa-pencil-square-o pointer blue\"></i><i aria-hidden=\"true\" style=\"margin-left: 10px;\" ng-click=\"ctg.addSubCat(cat._id)\" tip=\"Показать подкатегории\" class=\"fa fa-plus pointer green\"></i><i aria-hidden=\"true\" style=\"margin-left: 10px;\" ng-click=\"ctg.removeCat(cat._id)\" tip=\"Удалить\" class=\"fa fa-times pointer red\"> </i></span></li></ul><button ng-click=\"ctg.addCategory(tmpCat)\" ng-show=\"tmpCat\" class=\"btn pointer\">Добавить подкатегорию</button><div ng-show=\"ctg.form.show\" class=\"fon\"><div id=\"category-form\" style=\"border: 1px solid green;\"><h3 class=\"m-t-10\">{{ctg.form.title}}</h3><div class=\"m-t-20 m-l-15\"><label class=\"iblock w-100 vt h-20\">Изображение</label><span class=\"iblock w-50 h-50\"><img ng-if=\"!ctg.form.tmp.img.name\" width=\"50\" height=\"50\" ng-src=\"/images/catalog/{{ctg.form.tmp.img}}\" tip=\"icon\"><img ng-if=\"ctg.form.tmp.img.name\" width=\"50\" height=\"50\" ngf-thumbnail=\"ctg.form.tmp.img\"></span><input type=\"file\" ngf-select ng-model=\"ctg.form.tmp.img\" name=\"file\" accept=\"image/*\" ngf-max-size=\"2MB\" required ngf-model-invalid=\"errorFile\" class=\"img-btn iblock h-50 vt\"></div><div class=\"m-t-10 m-l-15\"><label class=\"iblock w-100 vt h-20\">Заголовок</label><input type=\"text\" ng-model=\"ctg.form.tmp.title.ru\" class=\"vm\"></div><div class=\"m-t-10 m-l-15\"><label class=\"iblock w-100 vt h-20\">Header</label><input type=\"text\" ng-model=\"ctg.form.tmp.title.en\" class=\"vm\"></div><div class=\"m-t-10 m-l-15\"><label class=\"iblock w-100 vt h-20\">Ссылка</label><input type=\"text\" ng-model=\"ctg.form.tmp.href\" class=\"vm\"></div><div class=\"m-t-10 m-l-15\"><label class=\"iblock w-100 vt h-20\">Код</label><input type=\"text\" ng-model=\"ctg.form.tmp.code\" class=\"vm\"></div><span class=\"iblock h-50 m-r-20 m-t-30 right\"><button aria-hidden=\"true\" ng-click=\"ctg.form.ok()\" class=\"fa fa-check pointer green m-l-15\"></button><button aria-hidden=\"true\" ng-click=\"ctg.form.cancel()\" class=\"fa fa-times pointer red m-l-15\"></button></span></div></div>");
 }]);
 
 angular.module("templates/adminka/category-item.jade", []).run(["$templateCache", function($templateCache) {

@@ -60,6 +60,13 @@ header{
     height: 50px;
     display: inline-block;
 }
+#main-subs{
+    margin-left: 50px;
+}
+#main-subs>li>span>img{
+    height: 50px;
+    width: 50px;
+}
 
 .fon{
     position: fixed;
@@ -75,9 +82,15 @@ header{
     margin: auto;
     margin-top: calc(50vh - 125px);
     width: 430px;
-    height: 250px;
+    height: 320px;
 
     background-color: #eee;
+}
+.radio{
+    display: inline-block;
+    line-height: 50px;
+    vertical-align: middle;
+    padding: 10px 0;
 }
 /* =================================== products =====================================*/
 #product-form{

@@ -1,6 +1,5 @@
 extends layout
 
 block content
-  h1= title
-  p(ng-controller="TestCtlr") Welcome to #{title}
-  p Page scrolled = {{boolPageScrolled||'false'}}
+    content-wrapper
+        my-slider(slids="slides")

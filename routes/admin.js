@@ -6,7 +6,7 @@ var router = express.Router();
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
-var url = 'mongodb://localhost:27017/bitkom';
+var url = 'mongodb://localhost:27017/megasmart';
 var Busboy = require('busboy');
 var inspect = require('util').inspect;
 var fs = require('fs-extra');
@@ -32,7 +32,7 @@ router.get('/types', function(req, res, next) {
 router.post('/upload', function(req, res, next){
     var idn = '';
     var fName = '';
-    var tempFile = '';
+    var tempFile = ''; 
 
     var busboy = new Busboy({ headers: req.headers });
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
@@ -42,20 +42,19 @@ router.post('/upload', function(req, res, next){
         fName = filename;
     });
     busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated) {
-        if(fieldname.indexOf('userID') != -1){
+        if(fieldname.indexOf('userID') !== -1){
             idn = val;
         }
     });
     busboy.on('finish', function() {
-        var targetPath = path.resolve('./public/images/menu');
+        var targetPath = path.resolve('./public/images/catalog');
 
         mkdirp(targetPath, function(err){
             if(err)console.log(err);
             im.resize({
                 srcPath: tempFile,
                 dstPath: targetPath + '/' + fName,
-                width:   250,
-                height: 250
+                width:   250
             }, function(err, stdout, stderr){
                 if (err) console.log(err);
                 console.log('resized ' + fName + ' to fit within 100x100');
@@ -68,7 +67,7 @@ router.post('/upload', function(req, res, next){
 });
 router.post('/save/:col', function(req, res, next){
     if(req.body.item._id){
-        updateItem(res, req.params.col, req.body.item, req.body.fields);
+        updateItem(res, req.params.col, req.body.item, req.body.fields); 
     }else{
         insert(res, req.params.col, req.body.item);
     }

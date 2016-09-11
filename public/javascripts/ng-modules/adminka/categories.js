@@ -12,34 +12,58 @@
                 
 //                $http.post('/admin/view/categories', {})
 //                    .then(function(resp){$scope.categories = resp.data.categories}, function(err){alert(err.data);});
-                $http.post('/admin/view/interface', {name: 'main-menu'})
-                    .then(function(resp){$scope.mainMenu = resp.data.interface[0]}, function(err){alert(err.data);});
-                this.catForm = {
+                $http.post('/admin/view/categories', {query: {parent: null}})
+                    .then(function(resp){$scope.categories = resp.data.categories}, function(err){alert(err.data);});
+                this.form = {
                     show: false,
                     cancel: function cancel(){
                         this.show = false;
                     }
                 };
-                this.addCategory = function(){
-                    this.catForm.title = "Добавить категорию";
-                    this.catForm.tmp = {};
-                    this.catForm.show = true;
-                    this.catForm.upload = this.uploadFile;
-                    this.catForm.ok = this.pushCat;
+                this.addCategory = function(parent){
+                    this.form.title = "Добавить категорию";
+                    this.form.tmp = {img: null, parent: parent};
+                    this.form.show = true;
+                    this.form.upload = this.uploadFile;
+                    this.form.ok = this.insertCat;
 
                 };
-                this.pushCat = function(){                    
-                    if(this.tmp.icon){
-                            this.upload(this.tmp.icon);
-                            this.tmp.ticon = this.tmp.icon;
-                            this.tmp.icon = this.tmp.ticon.name;
-                        }
-                    $scope.mainMenu.item.push(this.tmp);
+                this.editCategory = function(cat){
+                    this.form.title = "Редактировать категорию";
+                    this.form.tmp = cat;
+                    this.form.tmp.timg = null;
+                    this.form.show = true;
+                    this.form.upload = this.uploadFile;
+                    this.form.ok = this.insertCat;
+
+                };
+                this.insertCat = function(){                    
+                    if(this.tmp.img.name){
+                        this.upload(this.tmp.img);                            
+                        
+                        this.tmp.img = this.tmp.img.name;
+                    }
+                    $http.post('/admin/save/categories', {item: this.tmp, fields:['img', 'title', 'href', 'code']})
+                        .then(function(resp){
+                            $http.post('/admin/view/categories', {query: {parent: this.tmp.parent}})
+                                .then(function(resp){
+                                    alert(this.tmp.parent);
+                                    if(this.tmp.parent){
+                                        $scope.subcats = resp.data.categories;
+                                    }else{
+                                        $scope.categories = resp.data.categories;
+                                    }
+                                }, function(err){alert(err.data);});
+                        }, function(err){alert(err.data);});
                     this.show = false;
                 };
-                
+                this.getSubcats = function(id){
+                    $scope.tmpCat = id;
+                    $http.post('/admin/view/categories', {query: {parent: id}})
+                        .then(function(resp){$scope.subcats = resp.data.categories; }, function(err){alert(err.data);});
+                };
                 this.uploadFile = function(file, next){
-                    //alert('uploading');
+                    
                     Upload.upload({
                         url:'/admin/upload',
                         data: {'file': file}
@@ -62,41 +86,26 @@
                     }
                 };
                 this.saveCat = function(){
-                    remTicon($scope.mainMenu.item);
-                    $http.post('/admin/save/interface', {item: $scope.mainMenu, fields: ['item']})
-                        .then(function(response){                            
-                            $http.post('/admin/view/interface', {name: 'main-menu'})
-                                .then(function(resp){$scope.mainMenu = resp.data.interface[0]}, function(err){alert(err.data);});
-                        }, function(err){alert(err.data);});
-                    this.show = false;
+                    
                 };
                 
                 //function changeIcon(cat, tmp){cat.icon = tmp.icon.name;}
                 
                 this.addSubCat = function(cat){
-
-                    this.catForm.title = "Добавить подкатегорию";
+                    alert('subcat');
+                    this.form.title = "Добавить подкатегорию";
                     //this.catForm.cat = cat;
-                    this.catForm.tmp = {};
-                    this.catForm.show = true;
-                    this.catForm.upload = this.uploadFile;
-                    this.catForm.ok = function(){
-                        //alert(cat.title);
-                        if(!cat.subitems){
-                            cat.subitems = [];
-                        }
-                        
-                        if(this.tmp.icon){
-                            this.upload(this.tmp.icon);
-                            this.tmp.ticon = this.tmp.icon;
-                            this.tmp.icon = this.tmp.ticon.name;
-                        }
-                        cat.subitems.push(this.tmp);
-                        this.show = false;
-                    };
+                    this.form.tmp = {img: null, parent: cat};
+                    this.form.show = true;
+                    this.form.upload = this.uploadFile;
+                    this.form.ok = this.insertCat;
                 };
-                this.removeCat = function(arr, idx){
-                    arr.splice(idx, 1);
+                this.removeCat = function(id){
+                    $http.post('/admin/remove/categories', {id: id})
+                            .then(function(resp){
+                                $http.post('/admin/view/categories', {query: {parent: null}})
+                                    .then(function(resp){$scope.categories = resp.data.categories;}, function(err){alert(err.data);});
+                            }, function(err){alert(err.data);});
                 };
                 this.test = function(){
                     alert('test');
@@ -106,55 +115,6 @@
             controllerAs: "ctg"
         };
     });
-    app.directive('categoryItem', function(){
-        return{
-            require: '^^categories',
-            restrict: "E",
-            scope: {
-                cat: '=category',
-                idx: '=index'
-            },
-            templateUrl: "templates/adminka/category-item.jade",
-            controller: ['$scope', 'Upload', '$http', function($scope, Upload, $http){
-                //this.testc = function(){};
-                this.pctrl = undefined;
-                this.addSubCat = function(cat){
-                    pctrl.addSubCat(cat);
-                };
-                this.accept = function(tmp, cat){
-                    
-                    if(tmp.icon){
-                        this.uploadFile(tmp.icon);
-                        cat.ticon = tmp.icon;
-                        cat.icon = tmp.icon.name;
-                        tmp.icon = null;
-                    }
-                    cat.title = tmp.title;
-                    cat.code = tmp.code;
-                    ///tmp = null;
-                };
-                this.uploadFile = function(file, next){
-                    //alert('uploading');
-                    Upload.upload({
-                        url:'/admin/upload',
-                        data: {'file': file}
-                    }).then(function (response) {
-                        next();                        
-                    }, function (response) {
-                        if (response.status > 0)
-                            $scope.errorMsg = response.status + ': ' + response.data;
-                    }, function (evt) {
-                        // Math.min is to fix IE which reports 200% sometimes
-                        file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-                    });
-                };
-            }],
-            controllerAs: 'ci',
-            link: function(scope,element,attr, parentCtrl){
-                this.pctrl = parentCtrl;
-            }
-            
-        };
-    });
+    
 
 })();
