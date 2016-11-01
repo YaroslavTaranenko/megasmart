@@ -3,15 +3,29 @@
     To change this template file, choose Tools | Templates
     and open the template in the editor.
      
+popup-msg
+hr
 
-ul#catalog
-    li(ng-repeat="p in products")
-        span.title {{p.title}}
+table#catalog
+    tr
+        th id
+        th Name
+        th Code
+        th Actions
+    tr(ng-repeat="p in products")
+        td {{p._id}}
+        td
+            span.title {{p.title}}
+        td {{p.code}}
+        td
+            button Edit
+            button Delete
             
 hr
-button(ng-click="prod.add()") add
+button(ng-click="addProd = true") add
+hr
 
-.fon 
+.fon(ng-show="addProd")
     #product-form
         ul.tabs
             li(ng-click="prod.setTab('props')") Свойства
@@ -33,8 +47,11 @@ button(ng-click="prod.add()") add
                 select(ng-model="tsIndex" ng-show="categories[tIndex].subitems.length > 0")
                     option(ng-repeat="sc in categories[tIndex].subitems" value="{{$index}}") {{sc.title}}
                     
-                select(ng-model="tssType" ng-show="categories[tIndex].subitems[tsIndex].subitems.length > 0")
-                    option(ng-repeat="ssc in categories[tIndex].subitems[tsIndex].subitems") {{ssc.title}}
+                select(ng-model="tssIndex" ng-show="categories[tIndex].subitems[tsIndex].subitems.length > 0")
+                    option(ng-repeat="ssc in categories[tIndex].subitems[tsIndex].subitems" value="{{$index}}") {{ssc.title}}
+                span.m-10.w-50 {{categories[tIndex].code}}
+                span.m-10.w-50 {{categories[tIndex].subitems[tsIndex].code}}
+                span.m-10.w-50 {{categories[tIndex].subitems[tsIndex].subitems[tssIndex].code}}
         .tab-content(ng-show="prod.checkTab('preview')")
             form-group.h-260
                 label.iblock.w-100 Изображение    
@@ -46,7 +63,7 @@ button(ng-click="prod.add()") add
                     img(ngf-thumbnail="form.tmp.icon")
             form-group
                 label.iblock.w-p100 Описание
-                textarea.w-p90(ng-model="form.tmp.preview")
+                div.text-area.full-text(text-angular ng-model="form.tmp.short")
                 
         .tab-content(ng-show="prod.checkTab('full')")
             form-group
@@ -57,7 +74,9 @@ button(ng-click="prod.add()") add
                         ngf-model-invalid="errorFile")
                 .thumb
                     img(ngf-thumbnail="form.tmp.mainPic")
+                div(style="clear: both;")
+                div.text-area.full-text(text-angular ng-model="form.tmp.full")
                     
         .footer
-            button Ok
-            button Cancel
+            button(ng-click="prod.addProd()") Ok
+            button(ng-click="addProd = false") Cancel

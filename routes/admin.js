@@ -17,22 +17,24 @@ var im = require('imagemagick');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    res.render('admin', { title: 'Битком: админка' });
+    res.render('admin', { title: 'Megasmart: админка' });
 });
 router.get('/categories', function(req, res, next) {
-    res.render('categories', { title: 'Битком: категории' });
+    res.render('categories', { title: 'Megasmart: категории' });
 });
 router.get('/catalog', function(req, res, next) {
-    res.render('catalog', { title: 'Битком: каталог' });
+    res.render('catalog', { title: 'Megasmart: каталог' });
 });
 router.get('/types', function(req, res, next) {
-    res.render('types', { title: 'Битком: Типы инфоблоков' });
+    res.render('types', { title: 'Megasmart: Типы инфоблоков' });
 });
 
 router.post('/upload', function(req, res, next){
     var idn = '';
     var fName = '';
     var tempFile = ''; 
+    var location = "";
+    var size = 0;
 
     var busboy = new Busboy({ headers: req.headers });
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
@@ -45,22 +47,37 @@ router.post('/upload', function(req, res, next){
         if(fieldname.indexOf('userID') !== -1){
             idn = val;
         }
+        if(fieldname.indexOf('location') !== -1){
+            location = val;
+        }
+        if(fieldname.indexOf('size') !== -1){
+            size = parseInt(val);
+        }
     });
     busboy.on('finish', function() {
-        var targetPath = path.resolve('./public/images/catalog');
-
+        var targetPath = path.resolve('./public' + location);
+        if(location.length === 0){
+            return;
+            //res.end('Location not specified. ');
+        }
         mkdirp(targetPath, function(err){
             if(err)console.log(err);
-            im.resize({
-                srcPath: tempFile,
-                dstPath: targetPath + '/' + fName,
-                width:   250
-            }, function(err, stdout, stderr){
-                if (err) console.log(err);
-                console.log('resized ' + fName + ' to fit within 100x100');
-                res.end(fName);
-            });
-            res.end(fName);
+            if(size > 0){
+                im.resize({
+                    srcPath: tempFile,
+                    dstPath: targetPath + '/' + fName,
+                    width:   250
+                }, function(err, stdout, stderr){
+                    if (err) console.log(err);
+                    console.log('resized ' + fName + ' to fit within ' + size);
+                    res.end(fName);
+                });
+            }else{
+                fs.rename(tempFile, targetPath + '/' + fName, function(err){
+                    if(err)colsole.log(err);
+                    res.end('Uploaded ' + targetPath + '/' + fName);
+                });
+            }
         });
     });
     req.pipe(busboy);
@@ -102,7 +119,8 @@ function insert(res, col, item){
             res.end(JSON.stringify({result:r}));
         });
     });
-};
+}
+
 function updateItem(res, col, item, fields){
     MongoClient.connect(url, function(err, db){
         assert.equal(null, err);
@@ -119,7 +137,7 @@ function updateItem(res, col, item, fields){
             res.end(JSON.stringify({result:r}));
         });
     });
-};
+}
 function deleteItem(res, col, id, next){
     MongoClient.connect(url, function(err, db){
         assert.equal(null, err);
@@ -136,7 +154,7 @@ function deleteItem(res, col, id, next){
 
         });
     });
-};
+}
 function find(res, col, query){
     MongoClient.connect(url, function(err, db){
         assert.equal(null, err);
@@ -161,5 +179,5 @@ function findSort(res, col, query, sort, limit){
             res.end(JSON.stringify(data));
         });
     });
-};
+}
 module.exports = router;

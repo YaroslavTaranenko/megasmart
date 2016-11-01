@@ -2,7 +2,7 @@
  * Created by yaroslav on 8/16/16.
  */
 (function() {
-    var app = angular.module('categories', ['ngFileUpload']);
+    var app = angular.module('categories', ['ngFileUpload', 'popups']);
 
     app.directive('categories', function(){
         return{
@@ -13,7 +13,8 @@
 //                $http.post('/admin/view/categories', {})
 //                    .then(function(resp){$scope.categories = resp.data.categories}, function(err){alert(err.data);});
                 $http.post('/admin/view/categories', {query: {parent: null}})
-                    .then(function(resp){$scope.categories = resp.data.categories}, function(err){alert(err.data);});
+                    .then(function(resp){$scope.categories = resp.data.categories[0]}, function(err){alert(err.data);});
+                
                 this.form = {
                     show: false,
                     cancel: function cancel(){
@@ -28,13 +29,23 @@
                     this.form.ok = this.insertCat;
 
                 };
+                this.addSubCategory = function(cat){
+                    this.form.title = "Добавить категорию";
+                    this.form.tmp = {img: null};
+                    
+                    this.form.parent = cat;
+                    this.form.show = true;
+                    this.form.upload = this.uploadFile;
+                    this.form.ok = this.addSubcat;
+
+                };
                 this.editCategory = function(cat){
                     this.form.title = "Редактировать категорию";
                     this.form.tmp = cat;
                     this.form.tmp.timg = null;
                     this.form.show = true;
                     this.form.upload = this.uploadFile;
-                    this.form.ok = this.insertCat;
+                    this.form.ok = function(){this.show = false;};
 
                 };
                 this.insertCat = function(){                    
@@ -43,30 +54,29 @@
                         
                         this.tmp.img = this.tmp.img.name;
                     }
-                    $http.post('/admin/save/categories', {item: this.tmp, fields:['img', 'title', 'href', 'code']})
-                        .then(function(resp){
-                            $http.post('/admin/view/categories', {query: {parent: this.tmp.parent}})
-                                .then(function(resp){
-                                    alert(this.tmp.parent);
-                                    if(this.tmp.parent){
-                                        $scope.subcats = resp.data.categories;
-                                    }else{
-                                        $scope.categories = resp.data.categories;
-                                    }
-                                }, function(err){alert(err.data);});
-                        }, function(err){alert(err.data);});
+                    if($scope.categories == null)$scope.categories = {items: []};
+                    if($scope.categories.items == null)$scope.categories.items = [];
+                    $scope.categories.items.push(this.tmp);
                     this.show = false;
                 };
-                this.getSubcats = function(id){
-                    $scope.tmpCat = id;
-                    $http.post('/admin/view/categories', {query: {parent: id}})
-                        .then(function(resp){$scope.subcats = resp.data.categories; }, function(err){alert(err.data);});
+                this.addSubcat = function(){
+                    if(this.tmp.img.name){
+                        this.upload(this.tmp.img);                                                    
+                        this.tmp.img = this.tmp.img.name;
+                    }
+                    if(this.parent == null){
+                        return;
+                    }else{
+                        if(this.parent.subitems == null)this.parent.subitems = [];
+                        this.parent.subitems.push(this.tmp);
+                    }
+                    this.show = false;
                 };
                 this.uploadFile = function(file, next){
                     
                     Upload.upload({
                         url:'/admin/upload',
-                        data: {'file': file}
+                        data: {'file': file, location: '/images/catalog'}
                     }).then(function (response) {
                         next();                        
                     }, function (response) {
@@ -85,28 +95,31 @@
                         }
                     }
                 };
-                this.saveCat = function(){
-                    
+                this.save = function(){                    
+                    $http.post('/admin/save/categories', {item: $scope.categories , fields:['items']})
+                        .then(function(resp){
+                            $http.post('/admin/view/categories', {})
+                                .then(function(resp){
+                                    
+                                    $scope.categories = resp.data.categories[0];
+                                    $scope.popShow('Данные успешно сохранены.');
+                                }, function(err){alert(err.data);});
+                        }, function(err){alert(err.data);});
                 };
                 
                 //function changeIcon(cat, tmp){cat.icon = tmp.icon.name;}
                 
-                this.addSubCat = function(cat){
-                    alert('subcat');
-                    this.form.title = "Добавить подкатегорию";
-                    //this.catForm.cat = cat;
-                    this.form.tmp = {img: null, parent: cat};
-                    this.form.show = true;
-                    this.form.upload = this.uploadFile;
-                    this.form.ok = this.insertCat;
-                };
+                
                 this.removeCat = function(id){
                     $http.post('/admin/remove/categories', {id: id})
                             .then(function(resp){
                                 $http.post('/admin/view/categories', {query: {parent: null}})
-                                    .then(function(resp){$scope.categories = resp.data.categories;}, function(err){alert(err.data);});
+                                    .then(function(resp){$scope.categories = resp.data.categories[0];}, function(err){alert(err.data);});
                             }, function(err){alert(err.data);});
                 };
+                this.removeSubCat = function(arr, index){
+                    arr.splice(index, 1);
+                }
                 this.test = function(){
                     alert('test');
                 };
@@ -118,3 +131,4 @@
     
 
 })();
+

@@ -1,10 +1,15 @@
 //
    Created by yaroslav on 8/16/16.
 
-
+popup-msg
 ul#main-menu
-    
-    li.m-10(ng-repeat="cat in categories")
+    //div {{categories}}
+    li
+        span.iblock.w-50 img
+        span.iblock.m-5.vm title
+        span.iblock.m-5.vm Code
+        span.iblock.m-5.vm Href 
+    li.m-10(ng-repeat="cat in categories.items")
         
         span.iblock.w-50.h-50    
             img(ng-if="!cat.img.name" ng-src="/images/catalog/{{cat.img}}" tip="icon")
@@ -16,30 +21,42 @@ ul#main-menu
         span.iblock.h-50.m-5.lh-50.vt
             i.fa.fa-pencil-square-o.pointer.blue(aria-hidden="true" ng-click="ctg.editCategory(cat)" tip="Редактировать")
 
-            i.fa.fa-plus.pointer.green(aria-hidden="true" style="margin-left: 10px;" ng-click="ctg.getSubcats(cat._id)" tip="Показать подкатегории")
+            i.fa.fa-plus.pointer.green(aria-hidden="true" style="margin-left: 10px;" ng-click="ctg.addSubCategory(cat)" tip="Добавить подкатегории")
             i.fa.fa-times.pointer.red(aria-hidden="true" style="margin-left: 10px;" ng-click="ctg.removeCat(cat._id)" tip="Удалить") 
+        ul.subitems
+            li.m-10(ng-repeat="scat in cat.subitems")
+                span.iblock.w-50.h-50    
+                    img(ng-if="!scat.img.name" ng-src="/images/catalog/{{scat.img}}" tip="icon")
+                    img(ng-if="scat.img.name" ngf-thumbnail="scat.img" tip="icon")
 
+                span.iblock.h-50.m-5.vm {{scat.title[lang]}}
+                span.iblock.h-50.m-5.vm {{scat.code}}
+                span.iblock.h-50.m-5.vm {{scat.href}}
+                span.iblock.h-50.m-5.lh-50.vt
+                    i.fa.fa-pencil-square-o.pointer.blue(aria-hidden="true" ng-click="ctg.editCategory(scat)" tip="Редактировать")
 
-button.btn.pointer(ng-click="ctg.addCategory()") Добавить Категорию
-hr.m-t-10
-# {{tmpCat}}
-ul#main-subs
-    
-    li.m-10(ng-repeat="cat in subcats")
-        
-        span.iblock.w-50.h-50    
-            img(ng-if="!cat.img.name" ng-src="/images/catalog/{{cat.img}}" tip="icon")
-            img(ng-if="cat.img.name" ngf-thumbnail="cat.img" tip="icon")
+                    i.fa.fa-plus.pointer.green(aria-hidden="true" style="margin-left: 10px;" ng-click="ctg.addSubCategory(scat)" tip="Добавить подкатегории")
+                    i.fa.fa-times.pointer.red(aria-hidden="true" style="margin-left: 10px;" ng-click="ctg.removeSubCat(cat.subitems, $index)" tip="Удалить")
+                ul.ssubitems
+                    li.m-10(ng-repeat="sscat in scat.subitems")
+                        span.iblock.w-50.h-50    
+                            img(ng-if="!sscat.img.name" ng-src="/images/catalog/{{sscat.img}}" tip="icon")
+                            img(ng-if="sscat.img.name" ngf-thumbnail="sscat.img" tip="icon")
 
-        span.iblock.h-50.m-5.vm {{cat.title[lang]}}
-        span.iblock.h-50.m-5.vm {{cat.code}}
-        span.iblock.h-50.m-5.vm {{cat.href}}
-        span.iblock.h-50.m-5.lh-50.vt
-            i.fa.fa-pencil-square-o.pointer.blue(aria-hidden="true" ng-click="ctg.editCategory(cat)" tip="Редактировать")
+                        span.iblock.h-50.m-5.vm {{sscat.title[lang]}}
+                        span.iblock.h-50.m-5.vm {{sscat.code}}
+                        span.iblock.h-50.m-5.vm {{sscat.href}}
+                        span.iblock.h-50.m-5.lh-50.vt
+                            i.fa.fa-pencil-square-o.pointer.blue(aria-hidden="true" ng-click="ctg.editCategory(sscat)" tip="Редактировать")
 
-            i.fa.fa-plus.pointer.green(aria-hidden="true" style="margin-left: 10px;" ng-click="ctg.addSubCat(cat._id)" tip="Показать подкатегории")
-            i.fa.fa-times.pointer.red(aria-hidden="true" style="margin-left: 10px;" ng-click="ctg.removeCat(cat._id)" tip="Удалить") 
-button.btn.pointer(ng-click="ctg.addCategory(tmpCat)" ng-show="tmpCat") Добавить подкатегорию
+                            i.fa.fa-plus.pointer.green(aria-hidden="true" style="margin-left: 10px;" ng-click="ctg.addSubCategory(sscat)" tip="Добавить подкатегории")
+                            i.fa.fa-times.pointer.red(aria-hidden="true" style="margin-left: 10px;" ng-click="ctg.removeSubCat(scat.subitems, $index)" tip="Удалить")
+button.btn.pointer(ng-click="ctg.addCategory(null)") Добавить Категорию
+hr
+br
+br
+button.btn(ng-click="ctg.save()") Сохранить
+button.btn(ng-click="ctg.cancel()") Отмена
 
 .fon(ng-show="ctg.form.show")
     div#category-form(style="border: 1px solid green;")
@@ -57,7 +74,7 @@ button.btn.pointer(ng-click="ctg.addCategory(tmpCat)" ng-show="tmpCat") Доба
             label.iblock.w-100.vt.h-20 Заголовок
             input.vm(type="text" ng-model="ctg.form.tmp.title.ru")
         .m-t-10.m-l-15
-            label.iblock.w-100.vt.h-20 Header
+            label.iblock.w-100.vt.h-20 Заголовок (en)
             input.vm(type="text" ng-model="ctg.form.tmp.title.en")
         .m-t-10.m-l-15
             label.iblock.w-100.vt.h-20 Ссылка
